@@ -3,12 +3,11 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const prefix = '/';
-const triggerName = 'rtc';
+const prefix = '/move-';
 
-const determineIfRTC = (input) => {
+const determineIfTrigger = (trigger, input) => {
   const lowerInput = input.toLowerCase();
-  return lowerInput === 'rtc' || (lowerInput.includes('rtc ') && lowerInput.indexOf('rtc ') === 0) || (lowerInput.includes(' rtc') && lowerInput.indexOf(' rtc') === input.length - 4) || lowerInput.includes(' rtc ');
+  return lowerInput === trigger || (lowerInput.includes(trigger + ' ') && lowerInput.indexOf(trigger + ' ') === 0) || (lowerInput.includes(' ' + trigger) && lowerInput.indexOf(trigger + ' ') === input.length - (trigger.length() + 1)) || lowerInput.includes(' ' + trigger + ' ');
 }
 
 const client = new Discord.Client();
@@ -18,31 +17,24 @@ client.login(process.env.BOT_TOKEN);
 client.on('message', async (userMessage) => {
   if (userMessage.author.bot) return;
   if (!userMessage.content.startsWith(prefix)) return;
-  let commandBody = userMessage.content.slice(prefix.length);
-  commandBody = commandBody.trim();
+  const commandBody = userMessage.content.slice(prefix.length);
   const args = commandBody.split(/\s+/);
-  const shifted = args.shift();
-  if (shifted === undefined) {
-    return;
+  if (args.length() < 2) return;
+  args.map(item => item.toLowerCase())
+  let users = [];
+  if (userMessage.mentions.users.size !== 0) {
+    userMessage.mentions.users.map((user => users.push(user)));
+  } else {
+    users.push(userMessage.author);
   }
-  const command = shifted.toLowerCase();
-
-  if (command === triggerName) {
-    let users = [];
-    if (userMessage.mentions.users.size !== 0) {
-      userMessage.mentions.users.map((user => users.push(user)));
-    } else {
-      users.push(userMessage.author);
-    }
-    let chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfRTC(channel.name));
-    if (chan === undefined) {
-      await userMessage.guild.channels.create('rtc', {type: 'voice'});
-      chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfRTC(channel.name));
-    }
-    if (users.includes(client.user)) {
-      users = userMessage.member.voice.channel.members;
-    }
-    users.map(user => userMessage.guild.member(user).voice.setChannel(chan.id));
-    users.map(user => userMessage.channel.send(`${user}, bye`));
+  let chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfTrigger(args[0], channel.name));
+  if (chan === undefined) {
+    await userMessage.guild.channels.create(args[0], {type: 'voice'});
+    chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfTrigger(args[0], channel.name));
   }
+  if (users.includes(client.user)) {
+    users = userMessage.member.voice.channel.members;
+  }
+  users.map(user => userMessage.guild.member(user).voice.setChannel(chan.id));
+  users.map(user => userMessage.channel.send(`${user}, bye`));
 });

@@ -1,10 +1,10 @@
-# move-to-rtc
+# move-to_channel
 
-usage: /rtc ...@usernames
+usage: /move-<channel> ...@usernames
 
 You will need a bot token to run this.
 
-this bot moves all the mentioned users to an rtc channel and creates one first if it doesnt exist
+this bot moves all the mentioned users to a specific channel and creates one first if it doesnt exist
 
 (rtc channel = any voice channel with a name that includes 'rtc' as a separate word)
 
