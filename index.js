@@ -29,9 +29,11 @@ client.on('message', async (userMessage) => {
 
   if (command === triggerName) {
     let users = [];
+    let disperse = true;
     if (userMessage.mentions.users.size !== 0) {
       userMessage.mentions.users.map((user => users.push(user)));
     } else {
+      disperse = false;
       users.push(userMessage.author);
     }
     let chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfRTC(channel.name));
@@ -41,8 +43,12 @@ client.on('message', async (userMessage) => {
     }
     if (users.length === 1 && users.includes(client.user)) {
       users = userMessage.member.voice.channel.members;
-    } else if (users.length === 1 && users.includes(userMessage.author)) {
-      console.log(chan.members);
+    } else if (disperse && users.length === 1 && users.includes(userMessage.author)) {
+      chan.members.map(user => {
+        const rngChannel = userMessage.guild.channels.cache.random();
+        user.voice.setChannel(rngChannel.id);
+        users.map(user => userMessage.channel.send(`${user}, bye`));
+      });
       return;
     }
     users.map(user => userMessage.guild.member(user).voice.setChannel(chan.id));
