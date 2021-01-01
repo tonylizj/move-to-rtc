@@ -19,7 +19,7 @@ client.on('message', async (userMessage) => {
   if (!userMessage.content.startsWith(prefix)) return;
   const commandBody = userMessage.content.slice(prefix.length);
   const args = commandBody.split(/\s+/);
-  if (args.length() != 2) return;
+  if (args.length() < 2) return;
   for (arg in args) arg = arg.toLowerCase();
 
   let users = [];
