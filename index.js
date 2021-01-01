@@ -13,7 +13,7 @@ const determineIfRTC = (input) => {
 
 const client = new Discord.Client();
 
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.BOT_TOKEN_RTC);
 
 client.on('message', async (userMessage) => {
   if (userMessage.author.bot) return;
