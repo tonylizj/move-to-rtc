@@ -1,8 +1,8 @@
-# move-to-rtc
+# move-to_channel
 
-usage: /rtc ...@usernames
+usage: /move-<channel> ...@usernames
 
-this bot moves all the mentioned users to an rtc channel and creates one first if it doesnt exist
+this bot moves all the mentioned users to a specific channel and creates one first if it doesnt exist
 
 if no users are mentioned it moves yourself
 
