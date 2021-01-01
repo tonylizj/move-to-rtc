@@ -30,7 +30,7 @@ client.on('message', async (userMessage) => {
   }
   let chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfTrigger(args[0], channel.name));
   if (chan === undefined) {
-    await userMessage.guild.channels.create('channel', {type: 'voice'});
+    await userMessage.guild.channels.create(args[0], {type: 'voice'});
     chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfTrigger(args[0], channel.name));
   }
   if (users.includes(client.user)) {
