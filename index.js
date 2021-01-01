@@ -7,7 +7,7 @@ const prefix = '/move-';
 
 const determineIfTrigger = (trigger, input) => {
   const lowerInput = input.toLowerCase();
-  return lowerInput === trigger || (lowerInput.includes(trigger + ' ') && lowerInput.indexOf(trigger + ' ') === 0) || (lowerInput.includes(' ' + trigger) && lowerInput.indexOf(trigger + ' ') === input.length - trigger.length + 1) || lowerInput.includes(' ' + trigger + ' ');
+  return lowerInput === trigger || (lowerInput.includes(trigger + ' ') && lowerInput.indexOf(trigger + ' ') === 0) || (lowerInput.includes(' ' + trigger) && lowerInput.indexOf(trigger + ' ') === input.length - (trigger.length + 1)) || lowerInput.includes(' ' + trigger + ' ');
 }
 
 const client = new Discord.Client();
