@@ -39,8 +39,11 @@ client.on('message', async (userMessage) => {
       await userMessage.guild.channels.create('rtc', {type: 'voice'});
       chan = userMessage.guild.channels.cache.find(channel => channel.type === 'voice' && determineIfRTC(channel.name));
     }
-    if (users.includes(client.user)) {
+    if (users.length === 1 && users.includes(client.user)) {
       users = userMessage.member.voice.channel.members;
+    } else if (users.length === 1 && users.includes(userMessage.author)) {
+      console.log(chan.members);
+      return;
     }
     users.map(user => userMessage.guild.member(user).voice.setChannel(chan.id));
     users.map(user => userMessage.channel.send(`${user}, bye`));
