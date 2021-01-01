@@ -7,7 +7,7 @@ const prefix = '/move-';
 
 const determineIfTrigger = (trigger, input) => {
   const lowerInput = input.toLowerCase();
-  return lowerInput === trigger || (lowerInput.includes(trigger + ' ') && lowerInput.indexOf(trigger + ' ') === 0) || (lowerInput.includes(' ' + trigger) && lowerInput.indexOf(trigger + ' ') === input.length - (trigger.length + 1)) || lowerInput.includes(' ' + trigger + ' ');
+  return lowerInput === trigger || (lowerInput.includes(trigger + ' ') && lowerInput.indexOf(trigger + ' ') === 0) || (lowerInput.includes(' ' + trigger) && lowerInput.indexOf(trigger + ' ') === input.length - (trigger.length() + 1)) || lowerInput.includes(' ' + trigger + ' ');
 }
 
 const client = new Discord.Client();
@@ -20,8 +20,7 @@ client.on('message', async (userMessage) => {
   const commandBody = userMessage.content.slice(prefix.length);
   const args = commandBody.split(/\s+/);
   if (args.length() < 2) return;
-  for (arg in args) arg = arg.toLowerCase();
-
+  args.map(item => item.toLowerCase())
   let users = [];
   if (userMessage.mentions.users.size !== 0) {
     userMessage.mentions.users.map((user => users.push(user)));
