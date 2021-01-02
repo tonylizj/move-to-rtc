@@ -44,7 +44,7 @@ client.on('message', async (userMessage) => {
     if (users.length === 1 && users.includes(client.user)) {
       users = userMessage.member.voice.channel.members;
     } else if (disperse && users.length === 1 && users.includes(userMessage.author)) {
-      chan.members.map(user => {
+      chan.members.map(async (user) => {
         const rngChannel = userMessage.guild.channels.cache.filter(c => c.type === 'voice').random();
         user.voice.setChannel(rngChannel.id);
         userMessage.channel.send(`${user}, bye`);
