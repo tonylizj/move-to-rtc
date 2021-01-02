@@ -1,13 +1,11 @@
 # move-to-rtc
 
-usage: /rtc ...@usernames
+The rtc channel is a voice channel with a name that includes 'rtc' as a separate word. If multiple rtc channels exist, the one with the lowest id is considered the rtc channel.
 
-You will need a bot token to run this.
+### move-to-rtc is a Discord bot that provides highly requested functionality such as moving yourself to the rtc channel, moving everyone in a channel to the rtc channel, moving selected users to the rtc channel, and moving everyone from the rtc channel to random channels.
 
-this bot moves all the mentioned users to a rtc channel and creates one first if it doesnt exist
+usage: /rtc @username @username ...
 
-(rtc channel = any voice channel with a name that includes 'rtc' as a separate word)
+This bot moves all the mentioned users to the rtc channel, creating one first if it doesn't exist. If no users are mentioned (/rtc) it moves yourself. If you mention the bot (/rtc @move-to-rtc) it moves everyone in your voice channel to the rtc channel. If you mention yourself (/rtc @yourusername) it moves everyone from the rtc channel to random channels.
 
-if no users are mentioned it moves yourself
-
-if you mention the bot it moves everyone in your voice channel
+For security reasons, you need to input your own bot token into a .env file. This is not provided.
