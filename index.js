@@ -15,8 +15,38 @@ const client = new Discord.Client();
 
 client.login(process.env.BOT_TOKEN_RTC);
 
+let muteKick = false;
+
+client.on("voiceStateUpdate", (oldMember, newMember) => {
+  if (muteKick && newMember.selfMute) {
+    newMember.kick();
+  }
+});
+
 client.on('message', async (userMessage) => {
-  if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a') {
+  if (userMessage.content === '/rtc join') {
+    userMessage.member.voice.channel.join();
+    return;
+  }
+  if (userMessage.content === '/rtc leave') {
+    userMessage.guild.me.voice.kick();
+    return;
+  }
+  if (userMessage.content === '/rtc mk on') {
+    muteKick = true;
+    userMessage.reply('muteKick on');
+    return;
+  }
+  if (userMessage.content === '/rtc mk off') {
+    muteKick = false;
+    userMessage.reply('muteKick off');
+    return;
+  }
+  if (userMessage.content === '/rtc mk') {
+    userMessage.reply(`muteKick ${muteKick ? 'on' : 'off'}`);
+    return;
+  }
+  if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a--a') {
     console.log(1);
     userMessage.guild.roles.create({
       data: {
