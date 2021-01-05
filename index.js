@@ -43,7 +43,8 @@ client.on('message', async (userMessage) => {
     return;
   }
   if (userMessage.content === '/rtc mk') {
-    userMessage.reply(`muteKick ${muteKick.has(userMessage.guild.id) && !muteKick.get(userMessage.guild.id) ? 'off' : 'on'}`);
+    console.log(muteKick);
+    userMessage.reply(`muteKick ${(muteKick.has(userMessage.guild.id) && muteKick.get(userMessage.guild.id)) ? 'on' : 'off'}`);
     return;
   }
   if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a--a') {
