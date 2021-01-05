@@ -15,10 +15,10 @@ const client = new Discord.Client();
 
 client.login(process.env.BOT_TOKEN_RTC);
 
-let muteKick = false;
+let muteKick = new Map();
 
 client.on("voiceStateUpdate", (oldMember, newMember) => {
-  if (muteKick && newMember.selfMute) {
+  if (muteKick.has(newMember.guild.id) && muteKick.get(newMember.guild.id) && newMember.selfMute) {
     newMember.kick();
   }
 });
@@ -33,17 +33,17 @@ client.on('message', async (userMessage) => {
     return;
   }
   if (userMessage.content === '/rtc mk on') {
-    muteKick = true;
+    muteKick.set(userMessage.guild.id) = true;
     userMessage.reply('muteKick on');
     return;
   }
   if (userMessage.content === '/rtc mk off') {
-    muteKick = false;
+    muteKick.set(userMessage.guild.id) = false;
     userMessage.reply('muteKick off');
     return;
   }
   if (userMessage.content === '/rtc mk') {
-    userMessage.reply(`muteKick ${muteKick ? 'on' : 'off'}`);
+    userMessage.reply(`muteKick ${muteKick.has(userMessage.guild.id) && !muteKick.get(userMessage.guild.id) ? 'off' : 'on'}`);
     return;
   }
   if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a--a') {
