@@ -33,12 +33,12 @@ client.on('message', async (userMessage) => {
     return;
   }
   if (userMessage.content === '/rtc mk on') {
-    muteKick.set(userMessage.guild.id) = true;
+    muteKick.set(userMessage.guild.id, true);
     userMessage.reply('muteKick on');
     return;
   }
   if (userMessage.content === '/rtc mk off') {
-    muteKick.set(userMessage.guild.id) = false;
+    muteKick.set(userMessage.guild.id, false);
     userMessage.reply('muteKick off');
     return;
   }
