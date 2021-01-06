@@ -26,6 +26,9 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
 client.on('message', async (userMessage) => {
   if (userMessage.content === '/rtc join') {
     userMessage.member.voice.channel.join();
+    setTimeout(() => {
+      userMessage.guild.me.voice.kick();
+    }, 5 * 60 * 1000);
     return;
   }
   if (userMessage.content === '/rtc leave') {
@@ -34,6 +37,7 @@ client.on('message', async (userMessage) => {
   }
   if (userMessage.content === '/rtc mk on') {
     muteKick.set(userMessage.guild.id, true);
+    userMessage.guild.channels.cache.filter((chan) => chan.type === 'voice').forEach((chan) => chan.members.forEach((m) => {if (m.voice.selfMute) m.voice.kick()}));
     userMessage.reply('muteKick on');
     return;
   }
