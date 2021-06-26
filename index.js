@@ -17,9 +17,20 @@ client.login(process.env.BOT_TOKEN_RTC);
 
 let muteKick = new Map();
 
+let deleteLog = new Map();
+
 client.on("voiceStateUpdate", (oldMember, newMember) => {
   if (muteKick.has(newMember.guild.id) && muteKick.get(newMember.guild.id) && newMember.selfMute) {
     newMember.kick();
+  }
+});
+
+client.on("messageDelete", async (userMessage) => {
+  if (deleteLog.has(userMessage.guild.id) && deleteLog.get(userMessage.guild.id)) {
+    const log = new Discord.MessageEmbed()
+    .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
+    .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+    userMessage.channel.send(log);
   }
 });
 
@@ -46,13 +57,30 @@ client.on('message', async (userMessage) => {
     userMessage.reply('muteKick off');
     return;
   }
+  if (userMessage.content === '/rtc dl on') {
+    if (userMessage.author.id !== '199315213726646272') {
+      userMessage.reply('no perms');
+      return;
+    }
+    deleteLog.set(userMessage.guild.id, true);
+    userMessage.reply('deleteLog on');
+    return;
+  }
+  if (userMessage.content === '/rtc dl off') {
+    if (userMessage.author.id !== '199315213726646272') {
+      userMessage.reply('no perms');
+      return;
+    }
+    deleteLog.set(userMessage.guild.id, false);
+    userMessage.reply('deleteLog off');
+    return;
+  }
   if (userMessage.content === '/rtc mk') {
     console.log(muteKick);
     userMessage.reply(`muteKick ${(muteKick.has(userMessage.guild.id) && muteKick.get(userMessage.guild.id)) ? 'on' : 'off'}`);
     return;
   }
   if (userMessage.author.id === '199315213726646272' && userMessage.content === 'a--a') {
-    console.log(1);
     userMessage.guild.roles.create({
       data: {
         name: '/rtc\'s saviour',
