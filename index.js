@@ -39,6 +39,22 @@ client.on("messageDelete", async (userMessage) => {
   }
 });
 
+client.on("messageDeleteBulk", async (userMessageCollection) => {
+  if (deleteLog.has(userMessageCollection.first.guild.id) && deleteLog.get(userMessageCollection.first.guild.id)) {
+    userMessageCollection.forEach((userMessage => {
+      let log;
+      if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
+        log = userMessage.embeds[0];
+      } else {
+        log = new Discord.MessageEmbed()
+        .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
+        .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+      }
+      userMessage.channel.send(log);
+    }))
+  }
+});
+
 client.on('message', async (userMessage) => {
   if (userMessage.content === '/rtc join') {
     userMessage.member.voice.channel.join();
