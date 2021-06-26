@@ -40,7 +40,8 @@ client.on("messageDelete", async (userMessage) => {
 });
 
 client.on("messageDeleteBulk", async (userMessageCollection) => {
-  if (deleteLog.has(userMessageCollection.first.guild.id) && deleteLog.get(userMessageCollection.first.guild.id)) {
+  console.log(userMessageCollection.first());
+  if (deleteLog.has(userMessageCollection.first().guild.id) && deleteLog.get(userMessageCollection.first().guild.id)) {
     userMessageCollection.forEach((userMessage => {
       let log;
       if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
@@ -56,7 +57,7 @@ client.on("messageDeleteBulk", async (userMessageCollection) => {
 });
 
 client.on('messageUpdate', async (oldMessage, newMessage) => {
-  if (deleteLog.has(userMessageCollection.first.guild.id) && deleteLog.get(userMessageCollection.first.guild.id)
+  if (deleteLog.has(oldMessage.guild.id) && deleteLog.get(oldMessage.guild.id)
   && oldMessage.author.id === '794342690942222346' && oldMessage.embeds.length === 1 && newMessage.embeds.length === 0) {
     oldMessage.channel.send(oldMessage.embeds[0]);
   }
