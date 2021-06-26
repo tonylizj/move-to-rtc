@@ -40,9 +40,8 @@ client.on("messageDelete", async (userMessage) => {
 });
 
 client.on("messageDeleteBulk", async (userMessageCollection) => {
-  console.log(userMessageCollection.first());
   if (deleteLog.has(userMessageCollection.first().guild.id) && deleteLog.get(userMessageCollection.first().guild.id)) {
-    userMessageCollection.forEach((userMessage => {
+    userMessageCollection.sort((a, b) => a.createdTimestamp - b.createdTimestamp).forEach((userMessage => {
       let log;
       if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
         log = userMessage.embeds[0];
