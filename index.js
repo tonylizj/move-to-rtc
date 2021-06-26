@@ -9,7 +9,13 @@ const triggerName = 'rtc';
 const determineIfRTC = (input) => {
   const lowerInput = input.toLowerCase();
   return lowerInput === 'rtc' || (lowerInput.includes('rtc ') && lowerInput.indexOf('rtc ') === 0) || (lowerInput.includes(' rtc') && lowerInput.indexOf(' rtc') === input.length - 4) || lowerInput.includes(' rtc ');
-}
+};
+
+const makeDeleteLogEmbed = (userMessage) => {
+  return (new Discord.MessageEmbed()
+  .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
+  .setDescription(`${userMessage.content}\n\nSent at: ${userMessage.createdAt}\nDeleted at: ${new Date()}`));
+};
 
 const client = new Discord.Client();
 
@@ -31,9 +37,7 @@ client.on("messageDelete", async (userMessage) => {
     if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
       log = userMessage.embeds[0];
     } else {
-      log = new Discord.MessageEmbed()
-      .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
-      .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+      log = makeDeleteLogEmbed(userMessage);
     }
     userMessage.channel.send(log);
   }
@@ -46,9 +50,7 @@ client.on("messageDeleteBulk", async (userMessageCollection) => {
       if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
         log = userMessage.embeds[0];
       } else {
-        log = new Discord.MessageEmbed()
-        .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
-        .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+        log = makeDeleteLogEmbed(userMessage);
       }
       userMessage.channel.send(log);
     }))
