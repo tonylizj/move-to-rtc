@@ -55,6 +55,13 @@ client.on("messageDeleteBulk", async (userMessageCollection) => {
   }
 });
 
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+  if (deleteLog.has(userMessageCollection.first.guild.id) && deleteLog.get(userMessageCollection.first.guild.id)
+  && oldMessage.author.id === '794342690942222346' && oldMessage.embeds.length === 1 && newMessage.embeds.length === 0) {
+    oldMessage.channel.send(oldMessage.embeds[0]);
+  }
+})
+
 client.on('message', async (userMessage) => {
   if (userMessage.content === '/rtc join') {
     userMessage.member.voice.channel.join();
