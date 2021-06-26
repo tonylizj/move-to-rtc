@@ -27,9 +27,14 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
 
 client.on("messageDelete", async (userMessage) => {
   if (deleteLog.has(userMessage.guild.id) && deleteLog.get(userMessage.guild.id)) {
-    const log = new Discord.MessageEmbed()
-    .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
-    .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+    let log;
+    if (userMessage.author.id === '794342690942222346' && userMessage.embeds.length === 1) {
+      log = userMessage.embeds[0];
+    } else {
+      log = new Discord.MessageEmbed()
+      .setAuthor(`${userMessage.author.username} (${userMessage.author.id})`, userMessage.author.avatarURL())
+      .setDescription(`${userMessage.content}\n\nDeleted at: ${new Date()}`);
+    }
     userMessage.channel.send(log);
   }
 });
