@@ -27,7 +27,7 @@ let muteKick = new Map();
 let deleteLog = new Map();
 
 client.once("ready", () => {
-  const job = new cron.CronJob('00 00 23 * * *', () => {
+  const job = new cron.CronJob('00 00 4 * * *', () => {
     const guild = client.guilds.cache.get('478352853887614986');
     const channel = guild.channels.cache.get('478352855158358017');
     channel.send("<:disleep:799485771395366963>");
