@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
+const cron = require("cron");
 
 dotenv.config();
 
@@ -24,6 +25,16 @@ client.login(process.env.BOT_TOKEN_RTC);
 let muteKick = new Map();
 
 let deleteLog = new Map();
+
+client.once("ready", () => {
+  const job = new cron.CronJob('00 00 23 * * *', () => {
+    const guild = client.guilds.cache.get('478352853887614986');
+    const channel = guild.channels.cache.get('478352855158358017');
+    channel.send("<:disleep:799485771395366963>");
+  });
+
+  job.start();
+})
 
 client.on("voiceStateUpdate", (oldMember, newMember) => {
   if (muteKick.has(newMember.guild.id) && muteKick.get(newMember.guild.id) && newMember.selfMute) {
