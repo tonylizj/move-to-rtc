@@ -122,20 +122,20 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 client.on('message', async (message) => {
   if (message.author.bot) return;
 
-  if (isRtcCommand(message, 'join')) {
+  if (isRtcCommand(message.content, 'join')) {
     message.member.voice.channel.join();
     setTimeout(() => {
       message.guild.me.voice.kick();
     }, 5 * 60 * 1000);
     return;
-  } else if (isRtcCommand(message, 'leave')) {
+  } else if (isRtcCommand(message.content, 'leave')) {
     message.guild.me.voice.kick();
     return;
-  } else if (isRtcCommand(message, 'mk')) {
+  } else if (isRtcCommand(message.content, 'mk')) {
     console.log(muteKick);
     message.reply(`muteKick is ${muteKick.get(message.guild.id) ? 'on' : 'off'}`);
     return;
-  } else if (isRtcCommand(message, 'mk on')) {
+  } else if (isRtcCommand(message.content, 'mk on')) {
     muteKick.set(message.guild.id, true);
     message.guild.channels.cache
       .filter((chan) => chan.type === 'voice')
@@ -144,11 +144,11 @@ client.on('message', async (message) => {
       );
     message.reply('muteKick on');
     return;
-  } else if (isRtcCommand(message, 'mk off')) {
+  } else if (isRtcCommand(message.content, 'mk off')) {
     muteKick.set(message.guild.id, false);
     message.reply('muteKick off');
     return;
-  } else if (isRtcCommand(message, 'dl on')) {
+  } else if (isRtcCommand(message.content, 'dl on')) {
     if (isUserAdmin(message.author.id)) {
       deleteLog.set(message.guild.id, true);
       message.reply('deleteLog on');
@@ -157,7 +157,7 @@ client.on('message', async (message) => {
       message.reply('no perms');
       return;
     }
-  } else if (isRtcCommand(message, 'dl off')) {
+  } else if (isRtcCommand(message.content, 'dl off')) {
     if (isUserAdmin(message.author.id)) {
       deleteLog.set(message.guild.id, false);
       message.reply('deleteLog off');
@@ -166,7 +166,7 @@ client.on('message', async (message) => {
       message.reply('no perms');
       return;
     }
-  } else if (isRtcCommand(message, null)) {
+  } else if (isRtcCommand(message.content, null)) {
     // `/rtc` wtf is this
     let users = [];
     let disperse = true;
