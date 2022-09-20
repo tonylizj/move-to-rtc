@@ -7,6 +7,7 @@ dotenv.config();
 const prefix = '/';
 const triggerName = 'rtc';
 
+
 const isUserAdmin = (id) => {
   if (id === '199315213726646272') return true;
   return false;
@@ -19,33 +20,36 @@ const isUserRtcBot = (id) => {
 
 const isRtcVoiceChannel = (channelName) => {
   const name = channelName.toLowerCase().trimEnd();
-  return name.found(/(^|\s)rtc($|\s)/g);
+  return name.match(/(^|\s)rtc($|\s)/g);
 }
 
 
 // Checks whether user message starts with rtc prefix and 
 // if the user command matches a specified valid command
-const isRtcCommand = (message, command) => {
-  if (command === null) return true;  // `/rtc` is a valid command
-
+const isRtcCommand = (message, validCommand) => {
   const arguments = message.split(' ').filter(args => args != '');
-  const validCommandArgs = command.split(' ').filter(args => args != '');
+  const isRtcPrefix = (arguments[0] === prefix + triggerName);
+  const isSameNumberOfArguments = (arguments.length === validArguments.length + 1);
 
-  if (
-    arguments[0] === prefix + triggerName &&
-    arguments.length === validCommandArgs.length + 1
-  ) {
-    for (let arg = 0; arg < validCommandArgs.length; arg++) {
-      if (arguments[arg + 1] !== validCommandArgs[arg]) return false;
+  if (validCommand && isRtcPrefix && isSameNumberOfArguments) {
+    // Make sure every argument in the user message matches the valid commands
+    const validArguments = validCommand.split(' ').filter(args => args != '');
+    for (let arg = 0; arg < validArguments.length; arg++) {
+      if (arguments[arg + 1] !== validArguments[arg]) return false;
     }
     return true;
+  } else if (validCommand === null && isRtcPrefix) {
+    // `/rtc` is a valid command
+    return true;
+  } else {
+    // If it reaches this point, the command did not start with /rtc prefix
+    // or the arguments did not match the specified valid rtc command.
+    // This could either be different # of args or nonmatching arg values
+    return false;
   }
-
-  // If it reaches this point, the command did not start with /rtc prefix
-  // or the arguments did not match the specified valid rtc command
-  return false;
 }
 
+// Delete log message container and its format
 const makeDeleteLogEmbed = (message) => {
   return (
     new Discord.MessageEmbed()
@@ -57,8 +61,8 @@ const makeDeleteLogEmbed = (message) => {
 const client = new Discord.Client();
 client.login(process.env.BOT_TOKEN_RTC);
 
-let muteKick = new Map();
-let deleteLog = new Map();
+let muteKick = new Map();  // Servers with muteKick active, boolean map
+let deleteLog = new Map();  // Servers with deleteLog active, boolean map
 
 process.on('uncaughtException', (e) => console.log(e));
 process.on('unhandledRejection', (e) => console.log(e));
@@ -81,6 +85,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   }
 });
 
+// Keeps track of any deleted messages
 client.on('messageDelete', async (message) => {
   if (deleteLog.get(message.guild.id)) {
     let log;
@@ -119,6 +124,7 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
   }
 })
 
+// RTC text commands
 client.on('message', async (message) => {
   if (message.author.bot) return;
 
@@ -166,6 +172,8 @@ client.on('message', async (message) => {
       message.reply('no perms');
       return;
     }
+  } else if (isRtcCommand(message.content, 'test')) {
+    message.reply('version 1.3 since 10x dev first worked on this');
   } else if (isRtcCommand(message.content, null)) {
     // `/rtc` wtf is this
     let users = [];
