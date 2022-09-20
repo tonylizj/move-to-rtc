@@ -29,9 +29,8 @@ const isRtcVoiceChannel = (channelName) => {
 const isRtcCommand = (message, validCommand) => {
   const arguments = message.split(' ').filter(args => args != '');
   const isRtcPrefix = (arguments[0] === prefix + triggerName);
-  const isSameNumberOfArguments = (arguments.length === validArguments.length + 1);
 
-  if (validCommand && isRtcPrefix && isSameNumberOfArguments) {
+  if (validCommand && isRtcPrefix) {
     // Make sure every argument in the user message matches the valid commands
     const validArguments = validCommand.split(' ').filter(args => args != '');
     for (let arg = 0; arg < validArguments.length; arg++) {
