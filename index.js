@@ -1,6 +1,8 @@
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
 const cron = require('cron');
+const { Readable } = require('stream');
+const { text2wav } = require('text2wav');
 
 dotenv.config();
 
@@ -171,6 +173,12 @@ client.on('message', async (message) => {
       message.reply('no perms');
       return;
     }
+  } else if (isRtcCommand(message.content, 'say')) {
+    const wavByteArray = await text2wav('test');
+    const readableStream = Readable.from(wavByteArray);
+    message.reply(readableStream);
+    const connection = await message.member.voice.channel.join();
+    connection.play(readableStream);
   } else if (isRtcCommand(message.content, 'test')) {
     message.reply('version 1.3 since 10x dev first worked on this');
   } else if (isRtcCommand(message.content, null)) {
