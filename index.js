@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const dotenv = require('dotenv');
 const cron = require('cron');
 const { Readable } = require('stream');
-const { text2wav } = require('text2wav');
+const text2wav = require('text2wav');
 
 dotenv.config();
 
@@ -176,11 +176,13 @@ client.on('message', async (message) => {
   } else if (isRtcCommand(message.content, 'say')) {
     const wavByteArray = await text2wav('test');
     const readableStream = Readable.from(wavByteArray);
+    message.reply("SAY COMMAND DEVELOPED BY 10X DEV");
+    message.reply(wavByteArray);
     message.reply(readableStream);
     const connection = await message.member.voice.channel.join();
     connection.play(readableStream);
   } else if (isRtcCommand(message.content, 'test')) {
-    message.reply('version 1.3 since 10x dev first worked on this');
+    message.reply('version 1.6 since 10x dev first worked on this');
   } else if (isRtcCommand(message.content, null)) {
     // `/rtc` wtf is this
     let users = [];
