@@ -174,13 +174,16 @@ client.on('message', async (message) => {
       return;
     }
   } else if (isRtcCommand(message.content, 'say')) {
-    const wavByteArray = await text2wav('test');
-    const readableStream = Readable.from(wavByteArray);
-    message.reply("SAY COMMAND DEVELOPED BY 10X DEV");
-    message.reply(wavByteArray);
-    message.reply(readableStream);
-    const connection = await message.member.voice.channel.join();
-    connection.play(readableStream);
+    const wavByteArray = await text2wav('real 10x dev fixed this for you', {
+      voice: 'en+m7',
+      speed: 250,
+      pitch: 99,     
+      encoding: 1,
+    });
+    const readableStream = Readable.from(Buffer.from(wavByteArray));
+    message.reply("SAY COMMAND DEVELOPED BY 10X :clown: DEV");
+    const connection = await message.member.voice.channel?.join();
+    connection?.play(readableStream);
   } else if (isRtcCommand(message.content, 'test')) {
     message.reply('version 1.6 since 10x dev first worked on this');
   } else if (isRtcCommand(message.content, null)) {
