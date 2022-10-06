@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
 const cron = require('cron');
+const { exec } = require('child_process');
 
 dotenv.config();
 
@@ -197,10 +198,22 @@ client.on('message', async (message) => {
   else if (isSayCommand(message.content)) {
     const languageCode = 'en';
     const text = isSayCommand(message.content);
-    const api = `https://translate.google.com.vn/translate_tts?ie=UTF-8&q=${text}+&tl=${languageCode}&client=tw-ob`;
+
+    const curl = `curl 'https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=${languageCode}&client=tw-ob'`;
+    curl += " -H 'Referer: http://translate.google.com/' -H 'User-Agent: stagefright/1.2 (Linux;Android 5.0)' > tts.mp3";
+    // const api = `https://translate.google.com.vn/translate_tts?ie=UTF-8&q=${text}+&tl=${languageCode}&client=tw-ob`;
+
+    exec(curl, (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+      }
+    });
 
     const connection = await message.member.voice.channel.join();
-    connection.play(api);
+    connection.play('~/tts.mp3');
   }
   else if (isRtcCommand(message.content, 'test')) {
     message.reply('version 1.7 since 10x dev first worked on this');
