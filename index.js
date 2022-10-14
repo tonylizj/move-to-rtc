@@ -1,7 +1,10 @@
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
 const cron = require('cron');
-const { exec } = require('child_process');
+const axios = require('axios');
+const stream = require('stream');
+const fs = require('fs');
+const { promisify } = require('util');
 
 dotenv.config();
 
@@ -76,6 +79,7 @@ const makeDeleteLogEmbed = (message) => {
       )
   );
 };
+
 
 const client = new Discord.Client();
 client.login(process.env.BOT_TOKEN_RTC);
@@ -196,27 +200,31 @@ client.on('message', async (message) => {
     }
   }
   else if (isSayCommand(message.content)) {
-    const languageCode = 'en';
+    const language = 'en';
     const text = isSayCommand(message.content);
 
-    const curl = `curl 'https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=${languageCode}&client=tw-ob'`;
-    curl += " -H 'Referer: http://translate.google.com/' -H 'User-Agent: stagefright/1.2 (Linux;Android 5.0)' > tts.mp3";
-    // const api = `https://translate.google.com.vn/translate_tts?ie=UTF-8&q=${text}+&tl=${languageCode}&client=tw-ob`;
+    // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=${text}+&tl=${language}&client=tw-ob;
 
-    exec(curl, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`);
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`);
-      }
+    const finished = promisify(stream.finished);
+    const writer = fs.createWriteStream('~/tts.mp3');
+    axios({
+      method: 'GET',
+      url: `https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=${language}&client=tw-ob`,
+      headers: {
+        'Referer': 'http://translate.google.com/',
+        'User-Agent': 'stagefright/1.2 (Linux;Android 5.0)'
+      },
+      responseType: 'stream'
+    }).then(response => {
+      response.data.pipe(writer);
+      return finished(writer);
     });
 
     const connection = await message.member.voice.channel.join();
     connection.play('~/tts.mp3');
   }
   else if (isRtcCommand(message.content, 'test')) {
-    message.reply('version 1.7 since 10x dev first worked on this');
+    message.reply('version 1.8 since 10x dev first worked on this');
   }
   else if (isRtcCommand(message.content, null)) {
     // `/rtc` wtf is this
