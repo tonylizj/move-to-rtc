@@ -218,10 +218,10 @@ client.on('message', async (message) => {
     }).then(response => {
       response.data.pipe(writer);
       return finished(writer);
+      
+      const connection = await message.member.voice.channel.join();
+      connection.play('~/tts.mp3');
     });
-
-    const connection = await message.member.voice.channel.join();
-    connection.play('~/tts.mp3');
   }
   else if (isRtcCommand(message.content, 'test')) {
     message.reply('version 1.8 since 10x dev first worked on this');
