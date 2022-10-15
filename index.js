@@ -218,7 +218,7 @@ client.on('message', async (message) => {
     }).then(response => {
       response.data.pipe(writer);
       return finished(writer);
-      
+    }).then(response => {
       const connection = await message.member.voice.channel.join();
       connection.play('~/tts.mp3');
     });
