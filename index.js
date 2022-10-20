@@ -1,14 +1,15 @@
 const Discord = require('discord.js');
 const dotenv = require('dotenv');
 const cron = require('cron');
-const { Readable } = require('stream');
-const text2wav = require('text2wav');
+const axios = require('axios');
+const stream = require('stream');
+const fs = require('fs');
+const { promisify } = require('util');
 
 dotenv.config();
 
 const prefix = '/';
 const triggerName = 'rtc';
-
 
 const isUserAdmin = (id) => {
   if (id === '199315213726646272') return true;
@@ -25,7 +26,6 @@ const isRtcVoiceChannel = (channelName) => {
   return name.match(/(^|\s)rtc($|\s)/g);
 }
 
-
 // Checks whether user message starts with rtc prefix and 
 // if the user command matches a specified valid command
 const isRtcCommand = (message, validCommand) => {
@@ -39,25 +39,47 @@ const isRtcCommand = (message, validCommand) => {
       if (arguments[arg + 1] !== validArguments[arg]) return false;
     }
     return true;
-  } else if (validCommand === null && isRtcPrefix) {
-    // `/rtc` is a valid command
+  }
+  else if (validCommand === null && isRtcPrefix) {
+    // `/commandPrefix` is a valid command
     return true;
-  } else {
-    // If it reaches this point, the command did not start with /rtc prefix
-    // or the arguments did not match the specified valid rtc command.
-    // This could either be different # of args or nonmatching arg values
+  }
+  else {
+    // If it reaches this point, the command did not start with /rtc prefix,
+    // arguments did not match the specified commands
     return false;
   }
+}
+
+// Special RTC command with a different prefix where everything
+// after the prefix is text-to-speech, not commands
+const isSayCommand = (message) => {
+  const arguments = message.split(' ').filter(args => args != '');
+  const hasText = (arguments.length > 1);
+  const isSayPrefix = (arguments[0] === prefix + 'say');
+  arguments.shift();  // removes /say from arguments so we only have text left
+  const text = encodeURIComponent(arguments.join(' '));
+
+  if (isSayPrefix && hasText) {
+    return text;
+  }
+  return false;
 }
 
 // Delete log message container and its format
 const makeDeleteLogEmbed = (message) => {
   return (
     new Discord.MessageEmbed()
-      .setAuthor(`${message.author.username} (${message.author.id})`, message.author.avatarURL())
-      .setDescription(`${message.content}\n\nSent at: ${message.createdAt}\nDeleted at: ${new Date()}`)
+      .setAuthor(
+        `${message.author.username} (${message.author.id})`,
+        message.author.avatarURL()
+      )
+      .setDescription(
+        `${message.content}\n\nSent at: ${message.createdAt}\nDeleted at: ${new Date()}`
+      )
   );
 };
+
 
 const client = new Discord.Client();
 client.login(process.env.BOT_TOKEN_RTC);
@@ -101,15 +123,17 @@ client.on('messageDelete', async (message) => {
 
 client.on('messageDeleteBulk', async (messageCollection) => {
   if (deleteLog.get(messageCollection.first().guild.id)) {
-    messageCollection.sort((a, b) => a.createdTimestamp - b.createdTimestamp).forEach((message => {
-      let log;
-      if (isUserRtcBot(message.author.id) && message.embeds.length === 1) {
-        log = message.embeds[0];
-      } else {
-        log = makeDeleteLogEmbed(message);
-      }
-      message.channel.send(log);
-    }))
+    messageCollection
+      .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+      .forEach((message => {
+        let log;
+        if (isUserRtcBot(message.author.id) && message.embeds.length === 1) {
+          log = message.embeds[0];
+        } else {
+          log = makeDeleteLogEmbed(message);
+        }
+        message.channel.send(log);
+      }))
   }
 });
 
@@ -134,15 +158,15 @@ client.on('message', async (message) => {
     setTimeout(() => {
       message.guild.me.voice.kick();
     }, 5 * 60 * 1000);
-    return;
-  } else if (isRtcCommand(message.content, 'leave')) {
+  }
+  else if (isRtcCommand(message.content, 'leave')) {
     message.guild.me.voice.kick();
-    return;
-  } else if (isRtcCommand(message.content, 'mk')) {
+  }
+  else if (isRtcCommand(message.content, 'mk')) {
     console.log(muteKick);
     message.reply(`muteKick is ${muteKick.get(message.guild.id) ? 'on' : 'off'}`);
-    return;
-  } else if (isRtcCommand(message.content, 'mk on')) {
+  }
+  else if (isRtcCommand(message.content, 'mk on')) {
     muteKick.set(message.guild.id, true);
     message.guild.channels.cache
       .filter((chan) => chan.type === 'voice')
@@ -150,43 +174,59 @@ client.on('message', async (message) => {
         .forEach((m) => { if (m.voice.selfMute) m.voice.kick() })
       );
     message.reply('muteKick on');
-    return;
-  } else if (isRtcCommand(message.content, 'mk off')) {
+  }
+  else if (isRtcCommand(message.content, 'mk off')) {
     muteKick.set(message.guild.id, false);
     message.reply('muteKick off');
-    return;
-  } else if (isRtcCommand(message.content, 'dl on')) {
+  }
+  else if (isRtcCommand(message.content, 'dl')) {
+    console.log(deleteLog);
+    message.reply(`deleteLog is ${deleteLog.get(message.guild.id) ? 'on' : 'off'}`);
+  }
+  else if (isRtcCommand(message.content, 'dl on')) {
     if (isUserAdmin(message.author.id)) {
       deleteLog.set(message.guild.id, true);
       message.reply('deleteLog on');
-      return;
     } else {
       message.reply('no perms');
-      return;
     }
-  } else if (isRtcCommand(message.content, 'dl off')) {
+  }
+  else if (isRtcCommand(message.content, 'dl off')) {
     if (isUserAdmin(message.author.id)) {
       deleteLog.set(message.guild.id, false);
       message.reply('deleteLog off');
-      return;
     } else {
       message.reply('no perms');
-      return;
     }
-  } else if (isRtcCommand(message.content, 'say')) {
-    const wavByteArray = await text2wav('real 10x dev fixed this for you', {
-      voice: 'en+m7',
-      speed: 250,
-      pitch: 99,     
-      encoding: 1,
+  }
+  else if (isSayCommand(message.content)) {
+    const language = 'en';
+    const text = isSayCommand(message.content);
+
+    // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=${text}+&tl=${language}&client=tw-ob;
+
+    const finished = promisify(stream.finished);
+    const writer = fs.createWriteStream('~/tts.mp3');
+    axios({
+      method: 'GET',
+      url: `https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=${language}&client=tw-ob`,
+      headers: {
+        'Referer': 'http://translate.google.com/',
+        'User-Agent': 'stagefright/1.2 (Linux;Android 5.0)'
+      },
+      responseType: 'stream'
+    }).then(response => {
+      response.data.pipe(writer);
+      return finished(writer);
+    }).then(response => {
+      const connection = await message.member.voice.channel.join();
+      connection.play('~/tts.mp3');
     });
-    const readableStream = Readable.from(Buffer.from(wavByteArray));
-    message.reply("SAY COMMAND DEVELOPED BY 10X :clown: DEV");
-    const connection = await message.member.voice.channel?.join();
-    connection?.play(readableStream);
-  } else if (isRtcCommand(message.content, 'test')) {
-    message.reply('version 1.6 since 10x dev first worked on this');
-  } else if (isRtcCommand(message.content, null)) {
+  }
+  else if (isRtcCommand(message.content, 'test')) {
+    message.reply('version 1.8 since 10x dev first worked on this');
+  }
+  else if (isRtcCommand(message.content, null)) {
     // `/rtc` wtf is this
     let users = [];
     let disperse = true;
@@ -213,11 +253,11 @@ client.on('message', async (message) => {
         user.voice.setChannel(randomChannel.id);
         message.channel.send(`${user}, bye`);
       });
-      return;
     }
     users.map(user => message.guild.member(user).voice.setChannel(chan.id));
     users.map(user => message.channel.send(`${user}, bye`));
-  } else if (message.content === 'a--a') {
+  }
+  else if (message.content === 'a--a') {
     // secret do not tell
     if (isUserAdmin(message.author.id)) {
       message.guild.roles.create({
@@ -231,6 +271,6 @@ client.on('message', async (message) => {
         message.member.roles.add(role).then((mem) => console.log(mem.permissions.toArray()))
       });
     }
-    return;
   }
+  return;
 })
